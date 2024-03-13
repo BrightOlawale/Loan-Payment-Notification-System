@@ -1,0 +1,20 @@
+{
+  "contacts": [
+    {
+      "name": "Bright Olawale",
+      "email": "oolawalebright@gmail.com",
+      "account_number": "1234567890",
+      "loan_amount": 1000000,
+      "remaining_balance": 500000,
+      "paid": false
+    },
+    {
+      "name": "Bright Olatunji",
+      "email": "tjbright360@gmail.com",
+      "account_number": "1234568821",
+      "loan_amount": 500000,
+      "remaining_balance": 100000,
+      "paid": true
+    }
+  ]
+}

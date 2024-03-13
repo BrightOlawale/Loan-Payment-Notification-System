@@ -1,0 +1,72 @@
+{
+  "Comment": "ASL workflow to send personalized notifications to loan recipients based on their payment status",
+  "StartAt": "ProcessLoanData",
+  "States": {
+    "ProcessLoanData": {
+      "Type": "Map",
+      "ItemsPath": "$.contacts",
+      "Iterator": {
+        "StartAt": "CheckPaymentStatus",
+        "States": {
+          "CheckPaymentStatus": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.paid",
+                "BooleanEquals": true,
+                "Next": "SendPaidNotification"
+              },
+              {
+                "Variable": "$.paid",
+                "BooleanEquals": false,
+                "Next": "SendPaymentReminder"
+              }
+            ]
+          },
+          "SendPaidNotification": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:us-east-1:000000000000:function:loan-processing-service-local-loanRepaid",
+            "End": true,
+            "Retry": [
+              {
+                "ErrorEquals": ["States.ALL"],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 3
+              }
+            ],
+            "Catch": [
+              {
+                "ErrorEquals": ["States.ALL"],
+                "Next": "HandleError"
+              }
+            ]
+          },
+          "SendPaymentReminder": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:us-east-1:000000000000:function:loan-processing-service-local-loanUnpaid",
+            "End": true,
+            "Retry": [
+              {
+                "ErrorEquals": ["States.ALL"],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 3
+              }
+            ],
+            "Catch": [
+              {
+                "ErrorEquals": ["States.ALL"],
+                "Next": "HandleError"
+              }
+            ]
+          },
+          "HandleError": {
+            "Type": "Fail",
+            "Error": "ErrorHandlingState",
+            "Cause": "An error occurred while processing the loan recipient."
+          }
+        }
+      },
+      "End": true
+    }
+  }
+}
